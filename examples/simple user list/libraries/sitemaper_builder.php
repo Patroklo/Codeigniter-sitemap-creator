@@ -1,45 +1,48 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-
-/*
- *  This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 class sitemaper_builder
 {
 	
 	private $fichero = NULL;
 	
-	private $nombreFichero = '';
-	private $numeroFichero = '';
+	private $fileName = '';
+	private $fileNumber = '';
 	
 	private $buffer;
 	
-	private $tipoCargado = '';
+	private $loadedType = '';
+	private $xml_data = NULL;
 	
-	private $tiposAceptados = array('sitemap', 'sitemapIndex');
 	
-	private $cabeceras = array('sitemap' => "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\t<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" xmlns:image=\"http://www.google.com/schemas/sitemap-image/1.1\">\n\t",
-						'sitemapIndex' => "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\t<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n\t");
+	private $namespaces = array(
+								'image:image' => "http://www.google.com/schemas/sitemap-image/1.1",
+								'video:video' => "http://www.google.com/schemas/sitemap-video/1.1",
+								'mobile:mobile' => "http://www.google.com/schemas/sitemap-mobile/1.0",
+								'geo:geo' => "http://www.google.com/geo/schemas/sitemap/1.0",
+								'news:news' => "http://www.google.com/schemas/sitemap-news/0.9",
+								'codesearch:codesearch' => "http://www.google.com/codesearch/schemas/sitemap/1.0"
+								);
 	
-	private $colas = array('sitemap' => "</urlset>",
-					   'sitemapIndex' => '</sitemapindex>');
-					   
-	private	$etiquetas = array('sitemap' => array('<url>', '</url>'),
-								'sitemapIndex' => array('<sitemap>', '</sitemap>'));
+	private $headers = array('sitemap' => "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\t<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" 
+												xmlns:image=\"http://www.google.com/schemas/sitemap-image/1.1\"
+												xmlns:video=\"http://www.google.com/schemas/sitemap-video/1.1\"
+												xmlns:mobile=\"http://www.google.com/schemas/sitemap-mobile/1.0\"
+												xmlns:geo=\"http://www.google.com/geo/schemas/sitemap/1.0\"
+												xmlns:news=\"http://www.google.com/schemas/sitemap-news/0.9\"
+												xmlns:codesearch=\"http://www.google.com/codesearch/schemas/sitemap/1.0\">\n\t</urlset>",
+						'sitemapIndex' => "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\t<sitemapindex xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n\t</sitemapindex>");		   
+	private $labels = array('sitemap' => 'url',
+							'sitemapIndex' => 'sitemap');
 	private $contadorInterno = 0;		
 	
 	private $config; //guarda la configuración de campos especiales para el sitemap, como por ejemplo image	   
+	
+	/*
+	 * 
+	 *@input $params['archive'] => (string) archive where the xml will be stored
+	 *@input $params['type] => (string) type of xml for the header and the open and ending labels
+	 * 							accepted: xml, sitemap, sitemapIndex
+	 *@input $params['overwrite'] => (boolean) tells if the archive will be overwritten or not. Default true.
+	 */
 	
 	function builder($params)
 	{
@@ -50,29 +53,36 @@ class sitemaper_builder
 		
 		if(isset($params['type']))
 		{
-			$this->tipoCargado = $params['type'];
+			$this->loadedType = $params['type'];
 		}
 		else {
-			$this->tipoCargado = 'sitemap';
+			$this->loadedType = 'sitemap';
 		} 
 
-			if(!in_array($this->tipoCargado, $this->tiposAceptados))
-			{
-				$this->close();
-				return $this->tipoCargado." it's not a valid sitemap type.";
-			}
-			else
-			{
-				$this->inicialize($params['archive']);
-			}
+		if(!isset($params['overwrite']))
+		{
+			$params['overwrite'] = true;
+		}
+	
+		if(!array_key_exists($this->loadedType, $this->headers))
+		{
+			$this->close();
+			return $this->loadedType." it's not a valid sitemap type.";
+		}
+		else
+		{
+			$this->inicialize($params['archive'], $params['overwrite']);
+		}
+		
+			
 
 
 	}
 	
-	private function inicialize($archive)
+	private function inicialize($archive, $overwrite)
 	{
 				
-			if($this->fichero == NULL)
+			if($this->xml_data == NULL)
 			{
 				$arrFichero = explode('.',$archive);
 				
@@ -81,34 +91,33 @@ class sitemaper_builder
 					throw new Exception($archive.' is not a valid filename.');					
 				}
 				
-				$this->nombreFichero = $arrFichero[0].$this->numeroFichero.'.'.$arrFichero[1];
-				if($this->numeroFichero == '')
+				$this->fileName = $arrFichero[0].$this->fileNumber.'.'.$arrFichero[1];
+				if($this->fileNumber == '')
 				{
-					$this->numeroFichero = 1;
+					$this->fileNumber = 1;
 				}
 				else
 				{
-					$this->numeroFichero += 1;
+					$this->fileNumber += 1;
 				}
 			
 				//check if directory exists, if not, create it
-				$directory = dirname($this->nombreFichero);
+				$directory = dirname($this->fileName);
 				if(!file_exists($directory))
 				{
 					mkdir($directory);
 				}
+				
+				if(($overwrite == true) || ($overwrite == false and !file_exists($this->fileName)))
+					{
+						$this->xml_data = new SimpleXMLElement($this->headers[$this->loadedType]);
+					}
+				else
+					{
+						$this->xml_data = new SimpleXMLElement($this->fileName);
+					}			
 
-					$this->fichero = fopen($this->nombreFichero, 'w');
-					$this->makeHeader();
 			}
-	}
-	
-	function makeHeader()
-	{
-		if($this->fichero != NULL)
-		{
-			fwrite($this->fichero, $this->cabeceras[$this->tipoCargado]);
-		}
 	}
 	
 	function insertLines($var = array())
@@ -121,47 +130,68 @@ class sitemaper_builder
 		{
 			$this->contadorInterno = 0;
 			$this->cierra();
-			$this->inicializa($this->nombreFichero);
+			$this->inicializa($this->fileName, false);
 		}
 		else
 		{
 			$this->contadorInterno += $cuenta;
 		}
-		//tener dos bucles es un poco tonto, pero así nos ahorramos tiempo de procesamiento 
-		//en los casos en los que el tipo de sitemap no sea especial.
 		
-			foreach($var as $dato)
+		foreach($var as $value)
+		{
+			$subnode = $this->xml_data->addChild($this->labels[$this->loadedType]);	
+			foreach($value as $key => $data)
 			{
-				$this->buffer .= $this->etiquetas[$this->tipoCargado][0]."\n\t";
-					foreach($dato as $etiqueta => $valor)
+				if(!is_array($data))
+				{
+					$subnode->addChild("$key",$this->xml_convert($data));
+				}
+				else
+				{
+					$subnode2 = $subnode->addChild("$key", '', $this->namespaces[$key]);
+					foreach($data as $key2 => $data2)
 					{
-						if(is_array($valor))
+						if(is_array($data2))
 						{
-							$this->buffer.="<$etiqueta>\n\t";
-							foreach($valor as $etiqueta2 => $valor2)
-							{
-								$this->buffer.= "<$etiqueta2>".$this->xml_convert($valor2)."</$etiqueta2>\n\t";
-							}
-							$this->buffer.="</$etiqueta>\n\t";
-						}		
-						else 
+							$this->array_to_xml($data2, $subnode2);
+						}
+						else
 						{
-							$this->buffer.= "<$etiqueta>".$this->xml_convert($valor)."</$etiqueta>\n\t";
-							
+							$subnode2->addChild("$key2",$this->xml_convert($data2));
 						}
 					}
-				$this->buffer.= $this->etiquetas[$this->tipoCargado][1]."\n\t";
+			
+				}
 			}
 			
-		fwrite($this->fichero, $this->buffer);
+
+		}
+	}
+
+	function array_to_xml($vars, &$xml_data) 
+	{
+	    foreach($vars as $key => $value) 
+	    {
+		    if(is_array($value)) {
+	            if(!is_numeric($key)){
+	                $subnode = $xml_data->addChild("$key", '', $this->namespaces[$key]);
+	                $this->array_to_xml($value, $subnode);
+	            }
+	            else{
+	                $this->array_to_xml($value, $xml_data);
+	            }
+	        }
+	        else {
+	            $xml_data->addChild("$key",$this->xml_convert($value));
+	        }
+	    }
 	}
 
 	function close($send_ping = false)
 	{
-		if($this->fichero !== NULL)
-		{
-			fwrite($this->fichero, $this->colas[$this->tipoCargado]);
-			fclose($this->fichero);
+		if($this->xml_data !== NULL)
+		{		
+			$this->xml_data->asXML($this->fileName);	
 			
 			if($send_ping == true)
 			{
@@ -169,15 +199,15 @@ class sitemaper_builder
 			}
 			
 			$this->fichero = NULL;
-			$this->nombreFichero = '';
-			$this->numeroFichero = '';
+			$this->fileName = '';
+			$this->fileNumber = '';
 			$this->buffer = '';
-			$this->tipoCargado = '';
+			$this->loadedType = '';
 			$this->contadorInterno = 0;
+			$this->xml_data = NULL;
 		}
-		else
-		{
-			throw new Exception("Error, no hay ningún fichero abierto.", 1);
+		else {
+			throw new Exception('Error, the file '.$this->fileName.' it\'s not openned.');
 		}
 		
 	}
@@ -213,14 +243,14 @@ class sitemaper_builder
 	
 	function _pingGoogleSitemaps()
     {
-       if($this->nombreFichero !=='')
+       if($this->fileName !=='')
 	   {
 	   		$status = 0;
 		       $google = 'www.google.es';
 		       if( $fp=@fsockopen($google, 80) )
 		       {
 		          $req =  'GET /webmasters/sitemaps/ping?sitemap=' .
-		                  urlencode( base_url().$this->nombreFichero ) . " HTTP/1.1\r\n" .
+		                  urlencode( base_url().$this->fileName ) . " HTTP/1.1\r\n" .
 		                  "Host: $google\r\n" .
 		                  "User-Agent: Mozilla/5.0 (compatible; " .
 		                  PHP_OS . ") PHP/" . PHP_VERSION . "\r\n" .

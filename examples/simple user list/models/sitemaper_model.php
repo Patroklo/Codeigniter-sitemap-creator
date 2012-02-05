@@ -20,10 +20,7 @@ class sitemaper_model extends CI_Model {
 		  		$this->block = new $new_block();
 			}
 			
-			if($this->block->getFileName() == NULL)
-			{
-				return "Error, there is no defined file name.";
-			}
+
 			$this->sitemaper_builder->builder(array('archive' => $this->block->getFileName(), 'type' => $this->block->getType()));
 			$this->generateSitemap();
 			return TRUE;
@@ -39,9 +36,9 @@ class sitemaper_model extends CI_Model {
 
   		while($this->block->makeQuery())
 		{
-			$listaRows =& $this->block->getList();
+			$rowsList =& $this->block->getList();
 
-			$this->sitemaper_builder->insertLines($listaRows);
+			$this->sitemaper_builder->insertLines($rowsList);
 		}
 		
 		$this->sitemaper_builder->close(true);
