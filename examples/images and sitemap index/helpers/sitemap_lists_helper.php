@@ -91,6 +91,9 @@ abstract class urlList
 			}
 	}
 	
+	//forma el array de list que será el que se envie a sitemap builder con todos los datos obtenidos por la query
+	
+	//makes the array list that will be sent to the sitemap builder with all the data fetched in the query.
 	function getData()
 	{
 		$hasArrays = false;

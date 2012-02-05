@@ -1,0 +1,71 @@
+Instalation
+1.- Copy the archives in the code directory into their codeigniter installation subdirectories.
+
+2.- Edit the file helpers/sitemap_lists_helper.php extending the urlList class with every data you could need to make a sitemap. You can use the examples of the github directory as reference.
+
+3.- You can use the model that I have made in the code directory or make your own. I have tested this model and works fine, but it could be that it doesn't adapt to the neccessities of everyone.
+
+4.- Call the model from a controller and execute it. The sitemaps should be created automatically.
+
+UrlList class description:
+
+Execution line of the class:
+
+call to makeQuery() -> filters() -> getData() -> getList()
+
+function makeQuery() -> executes the query that has been made in the list. Uses as tablename the variable $this->table. If the query needs any filter like "wheres" or "groups" or "joins" you'll have to insert them in the filters() function.
+If you need a different structure in the $this->list array (see getData() function) you must overwrite getData, that is also called from makeQuery.
+This function will return a true while the query executed fetches rows. That is because there are database tables so big that the system cant get all their data in one only query due to memory overflows. For that the helper will fetch the data in portions of the size defined in $this->maxRows. Because that it's probable that you need to call this function several times to get all the data that the query could return. It's important to remember that the $this->list var, which holds the return of makeQuery it's erased each time you call the function, because that you'll have to work with this funcion this way:
+
+//calls the function while it returns true
+while($list->makeQuery())
+		{
+			//get the data that the function has gathered
+			$rowsList =& $list->getList();
+			//insert it in the sitemap
+			$this->sitemaper_builder->insertLines($rowsList);
+		} 
+
+function filters() -> here will be the where calls or any other special filter needed to make the query to make the sitemap. It's called from makeQuery().
+
+function getData() -> makes the $this->list array, that will be the list with the data that will use the sitemap builder to make the xml files. If it's needed to make a different structure, for example for sitemaps that hold images(see example "images and sitemap index") you could rewrite it to make an array in the $this->list variable as needed.
+
+function getList() -> getter of the $this->list variable.
+
+Instalación
+
+1.- Copiar los archivos dentro de la carpeta code dentro de las subcarpetas de su instalación de codeigniter.
+
+2.- Editar el archivo helpers/sitemap_lists_helper.php extendiendo la clase urlList con los datos que se necesiten para poder crear un sitemap. Podéis usar los ejemplos de la carpeta de github como referencia. 
+
+3.- Podéis usar el model que he colocado de sitemaps o hacer el vuestro propio. En principio este ha sido testeado a fondo y funciona bien, pero puede que no se adapte a las necesidades de todo el mundo.
+
+4.- Llamar al model desde un controller y ejecutarlo. Los sitemaps deberían hacerse automáticamente.
+
+
+Descripción de la clase urlList
+
+Línea de ejecución de la clase:
+
+makeQuery() -> filters() -> getData() -> getList()
+
+
+function makeQuery() -> ejecuta la query que se ha introducido con url list. Usa como tabla $this->table. Si la query requiere cualquier filtro como where, groups o joins deberán introducirse en la función filters() para que se ejecuten aquí.
+Si se requiere una estructura en el array $this->list diferente a la normal(ver la función getData) deberá sobreescribirse getData, que también se llama desde aquí.
+Retornará un true mientras la query que se ejecute en esta función de resultados. Esto es así porque algunas tablas son tan grandes que el sistema no puede contener todos los datos que retorna la query. Por ello los irá recogiendo en porciones de un tamaño definido en la variable $this->maxRows. Por ello es probable que haya que llamar varias veces a esta función para obtener todos los datos que la query retorna. Es importante recordar que la variable $this->list, que alberga el retorno de esta función se resetea cada vez que se llama a makeQuery, por ello habrá que trabajar con esta función de esta forma:
+
+//llama a a función mientras retorne un true
+while($list->makeQuery())
+		{
+			//obtenemos los datos que la función ha generado
+			$rowsList =& $list->getList();
+			//los insertamos en el sitemap
+			$this->sitemaper_builder->insertLines($rowsList);
+		} 
+
+
+function filters() -> aquí deberán guardarse las llamadas a where o cualquier llamada especial que pudiera contene la query para generar el sitemap. Se ejecuta dentro de makeQuery().
+
+function getData() -> monta el array $this->list que será la lista de datos con las que trabaje el sitemap builder para hacer los achivos XML. Si se necesita crear una estructura distinta a la básica, por ejemplo con un sitemap con imágenes(ver ejemplo images and sitemap index) se podrá reescribir para crear un array en $this->list como el usuario quiera.
+
+function getList() -> getter que retorna el array $this->list.
