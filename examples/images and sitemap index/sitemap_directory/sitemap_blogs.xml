@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+	<url>
+	<loc>http://web.com/blog/tittle_1/</loc>
+	<lastmod>2012&#45;01&#45;03</lastmod>
+	<changefreq>monthly</changefreq>
+	</url>
+	<url>
+	<loc>http://web.com/blog/tittle_2/</loc>
+	<lastmod>2012&#45;01&#45;03</lastmod>
+	<changefreq>monthly</changefreq>
+	</url>
+	<url>
+	<loc>http://web.com/blog/tittle_3/</loc>
+	<lastmod>2012&#45;01&#45;03</lastmod>
+	<changefreq>monthly</changefreq>
+	</url>
+	<url>
+	<loc>http://web.com/blog/tittle_4/</loc>
+	<lastmod>2012&#45;01&#45;03</lastmod>
+	<changefreq>monthly</changefreq>
+	</url>
+	</urlset>

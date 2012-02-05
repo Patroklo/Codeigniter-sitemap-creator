@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+	<url>
+	<loc>http://web.com/display_image/1/</loc>
+	<lastmod>2012&#45;01&#45;03</lastmod>
+	<changefreq>monthly</changefreq>
+	<image:image>
+		<image:loc>
+			http://web.com/display_image/images/1.jpg
+		</image:loc>
+		<image:title>
+			Tittle of image 1
+		</image:title>
+	</image:image>
+	</url>
+	<url>
+	<loc>http://web.com/display_image/2/</loc>
+	<lastmod>2012&#45;01&#45;03</lastmod>
+	<changefreq>monthly</changefreq>
+		<image:image>
+		<image:loc>
+			http://web.com/display_image/images/2.jpg
+		</image:loc>
+		<image:title>
+			Tittle of image 2
+		</image:title>
+	</image:image>
+	</url>
+	<url>
+	<loc>http://web.com/display_image/3/</loc>
+	<lastmod>2012&#45;01&#45;03</lastmod>
+	<changefreq>monthly</changefreq>
+	</url>
+	<url>
+	<loc>http://web.com/display_image/4/</loc>
+	<lastmod>2012&#45;01&#45;03</lastmod>
+	<changefreq>monthly</changefreq>
+		<image:image>
+		<image:loc>
+			http://web.com/display_image/images/3.jpg
+		</image:loc>
+		<image:title>
+			Tittle of image 3
+		</image:title>
+	</image:image>
+	</url>
+	</urlset>
