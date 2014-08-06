@@ -81,7 +81,6 @@ class sitemaper_builder
 	
 	private function inicialize($archive, $overwrite)
 	{
-				
 			if($this->xml_data == NULL)
 			{
 				$arrFichero = explode('.',$archive);
@@ -89,6 +88,11 @@ class sitemaper_builder
 				if(count($arrFichero) == 1)
 				{
 					throw new Exception($archive.' is not a valid filename.');					
+				}
+				
+				if($this->fileNumber > 1)
+				{
+					$arrFichero[0] = substr_replace($arrFichero[0] ,"",-1);
 				}
 				
 				$this->fileName = $arrFichero[0].$this->fileNumber.'.'.$arrFichero[1];
@@ -187,11 +191,23 @@ class sitemaper_builder
 	    }
 	}
 
-	function close($send_ping = false)
+	function close_file()
 	{
 		if($this->xml_data !== NULL)
 		{		
 			$this->xml_data->asXML($this->fileName);	
+			$this->xml_data = NULL;
+		}
+		else {
+			throw new Exception('Error, the file '.$this->fileName.' it\'s not openned.');
+		}
+	}
+
+	function close($send_ping = false)
+	{
+		if($this->xml_data !== NULL)
+		{		
+			$this->close_file();
 			
 			if($send_ping == true)
 			{
@@ -204,7 +220,6 @@ class sitemaper_builder
 			$this->buffer = '';
 			$this->loadedType = '';
 			$this->contadorInterno = 0;
-			$this->xml_data = NULL;
 		}
 		else {
 			throw new Exception('Error, the file '.$this->fileName.' it\'s not openned.');
