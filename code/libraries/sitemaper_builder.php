@@ -134,7 +134,7 @@ class sitemaper_builder
 		{
 			$this->contadorInterno = 0;
 			$this->close_file();
-			$this->inicialize($this->fileName, false);
+			$this->inicialize($this->fileName, true);
 		}
 		else
 		{
