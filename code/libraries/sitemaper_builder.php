@@ -133,7 +133,7 @@ class sitemaper_builder
 		if(($this->contadorInterno + $cuenta) > 50000)
 		{
 			$this->contadorInterno = 0;
-			$this->close();
+			$this->close_file();
 			$this->inicialize($this->fileName, false);
 		}
 		else
